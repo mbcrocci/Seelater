@@ -48,17 +48,34 @@ fn main() {
     match matches.subcommand() {
         ("add", Some(add_matches)) => {
             let item = add_matches.value_of("item").unwrap();
-            add(&mut later, &item);
+            println!("Adding {}...", item);
         },
-        ("list", _) => list(&mut later),
-
+        ("list", _) => {
+            for (i, item) in later.strings.iter().enumerate() {
+                println!("[{}] - {}", i, item);
+            }
+        },
         ("next", Some(next_matches)) => {
+
+            if later.strings.len() < 1 {
+                println!("The List is empty!");
+                return;
+            }
+
             if let Some(index) = next_matches.value_of("index") {
-                next_i(&mut later, index);
+                let i: usize = index.to_string().parse().unwrap();
+
+                if later.strings.len() < i {
+                    println!("Index out of bounds!");
+                    return;
+                }
+
+                let n = later.strings.remove(i);
+                println!("See: [{}] - {}", i, n);
 
             } else {
-                next(&mut later);
-
+                let n = later.strings.remove(0);
+                println!("See: {}", n);
             }
         },
         _ => unreachable!()
@@ -67,38 +84,4 @@ fn main() {
     let save = serde_json::to_string(&later).unwrap();
 
     fs::write(path, save).expect("errro!!!");
-}
-
-fn add(later: &mut Later, item: &str) {
-    println!("Adding {}...", item);
-
-    later.strings.push(item.to_string());
-}
-
-fn list(later: &mut Later) {
-    for (i, item) in later.strings.iter().enumerate() {
-        println!("[{}] - {}", i, item);
-    }
-}
-
-fn next(later: &mut Later) {
-    if later.strings.len() < 1 {
-        println!("The List is empty!");
-        return;
-    }
-
-    let n = later.strings.remove(0);
-    println!("See: {}", n);
-}
-
-fn next_i(later: &mut Later, index: &str) {
-    let i: usize = index.to_string().parse().unwrap();
-
-    if later.strings.len() < i {
-        println!("Index out of bounds!");
-        return;
-    }
-
-    let n = later.strings.remove(i);
-    println!("See: [{}] - {}", i, n);
 }
