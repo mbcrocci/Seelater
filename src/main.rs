@@ -48,6 +48,7 @@ fn main() {
     match matches.subcommand() {
         ("add", Some(add_matches)) => {
             let item = add_matches.value_of("item").unwrap();
+            later.strings.push(item.to_string());
             println!("Adding {}...", item);
         },
         ("list", _) => {
